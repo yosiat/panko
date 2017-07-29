@@ -4,7 +4,7 @@ source "https://rubygems.org"
 gemspec
 
 version = '4.2'
-gem_version = "~> #{version}.8"
+gem_version = "~> #{version}.9"
 
 gem 'rails', gem_version
 gem 'railties', gem_version
