@@ -100,4 +100,21 @@ describe 'Type Casting' do
     it { expect(Panko::_type_cast(type, 'FALSE')).to be_falsey }
   end
 
+  context 'Time' do
+    let(:type) { ActiveRecord::Type::DateTime.new }
+		let(:date) { DateTime.new(2017, 3, 4, 12, 45, 23) }
+		let(:utc) { ActiveSupport::TimeZone.new('UTC') }
+
+    it 'returns ISO8601 strings' do
+			expect(Panko::_type_cast(type, date.in_time_zone(utc).iso8601)).to eq('2017-03-04T12:45:23Z')
+    end
+
+    it 'converts string from datbase to utc time zone' do
+			time = "2017-07-10 09:26:40.937392"
+			result = DateTime.new(2017, 7, 10, 9, 26, 40, 937392).in_time_zone(utc)
+
+			expect(Panko::_type_cast(type, time)).to eq(result.iso8601)
+    end
+  end
+
 end

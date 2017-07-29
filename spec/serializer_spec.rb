@@ -39,7 +39,7 @@ describe Panko::Serializer do
       })
     end
 
-    xit 'serializes time correctly' do
+    it 'serializes time correctly' do
       ObjectWithTime = Struct.new(:created_at)
       class ObjectWithTimeSerializer < Panko::Serializer
         attributes :created_at

@@ -1,4 +1,5 @@
 #include "type_cast.h"
+#include "time_conversion.h"
 
 static ID type_cast_from_database_id = 0;
 static ID to_s_id = 0;
@@ -10,11 +11,14 @@ static VALUE ar_text_type = Qundef;
 static VALUE ar_float_type = Qundef;
 static VALUE ar_integer_type = Qundef;
 static VALUE ar_boolean_type = Qundef;
+static VALUE ar_date_time_type = Qundef;
+static VALUE ar_time_zone_converter = Qundef;
 
 static VALUE ar_pg_integer_type = Qundef;
 static VALUE ar_pg_float_type = Qundef;
 static VALUE ar_pg_uuid_type = Qundef;
 static VALUE ar_pg_json_type = Qundef;
+static VALUE ar_pg_date_time_type = Qundef;
 
 static int initiailized = 0;
 
@@ -40,6 +44,27 @@ VALUE cache_postgres_type_lookup(VALUE ar) {
   ar_pg_float_type = rb_const_get_at(ar_oid, rb_intern("Float"));
   ar_pg_uuid_type = rb_const_get_at(ar_oid, rb_intern("Uuid"));
   ar_pg_json_type = rb_const_get_at(ar_oid, rb_intern("Json"));
+  ar_pg_date_time_type = rb_const_get_at(ar_oid, rb_intern("DateTime"));
+
+  return Qtrue;
+}
+
+VALUE cache_time_zone_type_lookup(VALUE ar) {
+  // ActiveRecord::AttributeMethods
+  VALUE ar_attr_methods = rb_const_get_at(ar, rb_intern("AttributeMethods"));
+  if (ar_attr_methods == Qundef) {
+    return Qfalse;
+  }
+
+  // ActiveRecord::AttributeMethods::TimeZoneConversion
+  VALUE ar_time_zone_conversion =
+      rb_const_get_at(ar_attr_methods, rb_intern("TimeZoneConversion"));
+  if (ar_time_zone_conversion == Qundef) {
+    return Qfalse;
+  }
+
+  ar_time_zone_converter =
+      rb_const_get_at(ar_time_zone_conversion, rb_intern("TimeZoneConverter"));
 
   return Qtrue;
 }
@@ -61,10 +86,13 @@ void cache_type_lookup() {
   ar_float_type = rb_const_get_at(ar_type, rb_intern("Float"));
   ar_integer_type = rb_const_get_at(ar_type, rb_intern("Integer"));
   ar_boolean_type = rb_const_get_at(ar_type, rb_intern("Boolean"));
+  ar_date_time_type = rb_const_get_at(ar_type, rb_intern("DateTime"));
 
   // TODO: if we get error or not, add this to some debug log
   int isErrored;
   rb_protect(cache_postgres_type_lookup, ar, &isErrored);
+
+  rb_protect(cache_time_zone_type_lookup, ar, &isErrored);
 }
 
 bool is_string_or_text_type(VALUE type_klass) {
@@ -179,6 +207,34 @@ VALUE cast_boolean_type(VALUE value) {
   return isFalseValue ? Qfalse : Qtrue;
 }
 
+bool is_date_time_type(VALUE type_klass) {
+  return (type_klass == ar_date_time_type) ||
+         (ar_pg_date_time_type != Qundef &&
+          type_klass == ar_pg_date_time_type) ||
+         (ar_time_zone_converter != Qundef &&
+          type_klass == ar_time_zone_converter);
+}
+
+VALUE cast_date_time_type(VALUE value) {
+  // Instead of take strings to comparing them to time zones
+  // and then comparing them back to string
+  // We will just make sure we have string on ISO8601 and it's utc
+  if (RB_TYPE_P(value, T_STRING)) {
+    const char* val = StringValuePtr(value);
+    // 'Z' in ISO8601 says it's UTC
+    if (val[strlen(val) - 1] == 'Z' && is_iso8601_time_string(val) == Qtrue) {
+      return value;
+    }
+
+    VALUE iso8601_string = iso_ar_iso_datetime_string(val);
+    if (iso8601_string != Qnil) {
+      return iso8601_string;
+    }
+  }
+
+  return Qundef;
+}
+
 VALUE type_cast(VALUE type_metadata, VALUE value) {
   cache_type_lookup();
 
@@ -210,4 +266,6 @@ void panko_init_type_cast(VALUE mPanko) {
   to_i_id = rb_intern_const("to_i");
 
   rb_define_singleton_method(mPanko, "_type_cast", public_type_cast, 2);
+
+  panko_init_time(mPanko);
 }
