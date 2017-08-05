@@ -46,10 +46,6 @@ module Panko
 
     attr_reader :object, :context
 
-    def self.build_descriptor(serializer, options = {})
-      SerializationDescriptor.build(serializer, options)
-    end
-
     def serialize(object, writer = nil)
       Oj.load(serialize_to_json(object, writer))
     end

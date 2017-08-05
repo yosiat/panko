@@ -7,7 +7,7 @@ describe Panko::SerializationDescriptor do
 
   context 'attributes' do
     it 'simple fields' do
-      descriptor = Panko::Serializer.build_descriptor(FooSerializer)
+      descriptor = Panko::SerializationDescriptor.build(FooSerializer)
 
       expect(descriptor).not_to be_nil
       expect(descriptor.fields).to eq([:name, :address])
@@ -22,7 +22,7 @@ describe Panko::SerializationDescriptor do
         end
       end
 
-      descriptor = Panko::Serializer.build_descriptor(FooWithMethodsSerializer)
+      descriptor = Panko::SerializationDescriptor.build(FooWithMethodsSerializer)
 
       expect(descriptor).not_to be_nil
       expect(descriptor.fields).to eq([:name, :address])
@@ -32,7 +32,7 @@ describe Panko::SerializationDescriptor do
 
   context 'filter' do
     it 'only' do
-      descriptor = Panko::Serializer.build_descriptor(FooSerializer, only: [:name])
+      descriptor = Panko::SerializationDescriptor.build(FooSerializer, only: [:name])
 
       expect(descriptor).not_to be_nil
       expect(descriptor.fields).to eq([:name])
@@ -40,7 +40,7 @@ describe Panko::SerializationDescriptor do
     end
 
     it 'except' do
-      descriptor = Panko::Serializer.build_descriptor(FooSerializer, except: [:name])
+      descriptor = Panko::SerializationDescriptor.build(FooSerializer, except: [:name])
 
       expect(descriptor).not_to be_nil
       expect(descriptor.fields).to eq([:address])
@@ -56,7 +56,7 @@ describe Panko::SerializationDescriptor do
         has_one :foo, serializer: FooSerializer
       end
 
-      descriptor = Panko::Serializer.build_descriptor(FooHolderHasOneSerializer)
+      descriptor = Panko::SerializationDescriptor.build(FooHolderHasOneSerializer)
 
       expect(descriptor).not_to be_nil
       expect(descriptor.fields).to eq([:name])
@@ -79,7 +79,7 @@ describe Panko::SerializationDescriptor do
         has_many :foos, serializer: FooSerializer
       end
 
-      descriptor = Panko::Serializer.build_descriptor(FoosHasManyHolderSerializer)
+      descriptor = Panko::SerializationDescriptor.build(FoosHasManyHolderSerializer)
 
       expect(descriptor).not_to be_nil
       expect(descriptor.fields).to eq([:name])

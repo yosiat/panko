@@ -10,7 +10,7 @@ module Panko
 
     attr_reader :fields, :method_fields, :has_one_associations, :has_many_associations
 
-    def self.build(serializer, options)
+    def self.build(serializer, options={})
       fields, method_fields = fields_of(serializer)
       has_one_associations = build_associations(serializer._has_one_associations)
       has_many_associations = build_associations(serializer._has_many_associations)
