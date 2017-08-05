@@ -16,7 +16,6 @@ class BenchmarkApp < Rails::Application
     get '/text' => 'main#text'
 
     get '/serialize_to_string' => 'main#serialize_to_string'
-    get '/serialize_to_stream' => 'streaming#serialize_to_stream'
   end
 
   config.secret_token = 's'*30
@@ -46,22 +45,6 @@ class PostWithHasOneFastSerializer < Panko::Serializer
   attributes :id, :body, :title, :author_id
 
   has_one :author, serializer: AuthorFastSerializer
-end
-
-class StreamingController < ActionController::Base
-  include ActionController::Live
-
-  def serialize_to_stream
-    headers['Content-Type'.freeze] = 'application/json'.freeze
-
-    data = Benchmark.data[:all]
-    serializer = Panko::ArraySerializer.new([], each_serializer: PostWithHasOneFastSerializer)
-    writer = Oj::StreamWriter.new(response.stream, mode: :rails)
-
-    serializer.serialize_to_writer(data, writer)
-
-    response.stream.close
-  end
 end
 
 class MainController < ActionController::Base
@@ -95,4 +78,3 @@ Benchmark.ams('text') { request(:get, '/text') }
 Benchmark.ams('simple') { request(:get, '/simple') }
 
 Benchmark.ams('serialize_to_string') { request(:get, '/serialize_to_string') }
-Benchmark.ams('serialize_to_stream') { request(:get, '/serialize_to_stream') }
