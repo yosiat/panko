@@ -3,6 +3,7 @@ require_relative 'attributes/relationship'
 require_relative 'attributes/has_one'
 require_relative 'attributes/has_many'
 require_relative 'cache'
+require_relative 'serialization_descriptor'
 require 'oj'
 
 module Panko
@@ -19,7 +20,7 @@ module Panko
       attr_accessor :_attributes, :_associations
 
       def attributes(*attrs)
-        @_attributes.push(*attrs)
+        @_attributes.push(*attrs).uniq!
       end
 
 
@@ -59,6 +60,7 @@ module Panko
     end
 
     def initialize(options = {})
+
       @context = options.fetch(:context, nil)
 
       processed_filter = process_filter options.fetch(:only, [])
@@ -69,14 +71,17 @@ module Panko
       @except = processed_filter[:serializer]
       @except_associations = processed_filter[:associations]
 
-      @attributes = []
-      @method_call_attributes = []
+      @descriptor = Panko::CACHE.fetch(self.class, options)
 
-      build_attributes_reader
+      build_asscoations_code
     end
 
     attr_reader :object, :context
     attr_writer :context
+
+    def self.build_descriptor(serializer, options = {})
+      SerializationDescriptor.build(serializer, options)
+    end
 
     def serialize(object, writer = nil)
       Oj.load(serialize_to_json(object, writer))
@@ -88,6 +93,21 @@ module Panko
 
       writer.to_s
     end
+
+    def serialize_to_writer(object, writer)
+      @object = object
+
+      writer.push_object
+
+      Panko::serialize_subject(object, writer, self, @descriptor)
+      serialize_associations(object, writer)
+
+      writer.pop
+    end
+
+    def serialize_associations(object, writer)
+    end
+
 
     private
 
@@ -107,38 +127,22 @@ module Panko
       end
     end
 
-    def build_attributes_reader
-      build_attributes_metadata
+    def build_asscoations_code
+      associations = filter_associations(self.class._associations)
+      return if associations.empty?
 
-      attributes_reader_method_body = <<-EOMETHOD
-        def serialize_to_writer object, writer
-          @object = object
-
-          writer.push_object
-
-          Panko::process(object, writer, self, @attributes, @method_call_attributes)
-          #{associations_code}
-
-          writer.pop
+      serialize_associations_method_body = <<-EOMETHOD
+        def serialize_associations(object, writer)
+          #{associations_code(associations)}
         end
       EOMETHOD
 
 
-      instance_eval attributes_reader_method_body, __FILE__, __LINE__
+      instance_eval serialize_associations_method_body, __FILE__, __LINE__
     end
 
-    def build_attributes_metadata
-      filter_attributes(self.class._attributes).each do |attr|
-        if self.class.method_defined? attr
-          @method_call_attributes << attr
-        else
-          @attributes << attr
-        end
-      end
-    end
-
-    def associations_code
-      filter_associations(self.class._associations).map do |association|
+    def associations_code(associations)
+      associations.map do |association|
         #
         # Create instance variable to store the serializer for reusing of serializer.
         #
@@ -166,18 +170,6 @@ module Panko
 
       unless @except.empty?
         return keys.reject { |key| @except.include? key.name }
-      end
-
-      keys
-    end
-
-    def filter_attributes(keys)
-      unless @only.empty?
-        return keys.select { |key| @only.include?(key) }
-      end
-
-      unless @except.empty?
-        return keys.reject { |key| @except.include?(key) }
       end
 
       keys

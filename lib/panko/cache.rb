@@ -18,16 +18,12 @@ module Panko
       @_cache = Concurrent::Map.new
     end
 
-
     def fetch(serializer_const, options)
       serializer_key = build_key(serializer_const, options[:only], options[:except])
-      serializer = @_cache.fetch_or_store(serializer_key) {
-        serializer_const.new(only: options[:only], except: options[:except])
+      serializer = @_cache.compute_if_absent(serializer_key) {
+        Serializer.build_descriptor(serializer_const, only: options[:only], except: options[:except])
       }
 
-      # TODO: handle multi-threading, we might need to move
-      # to pool strategy here
-      serializer.context = options[:context]
       serializer
     end
 
