@@ -86,6 +86,8 @@ VALUE subjects_block_iter(VALUE subject, VALUE data, int argc, VALUE* argv) {
   serialize_subject(subject, str_writer, iter->serializer, iter->descriptor);
 
   rb_funcall(str_writer, pop_id, 0);
+
+  return Qundef;
 }
 
 VALUE serialize_subjects(VALUE klass,
