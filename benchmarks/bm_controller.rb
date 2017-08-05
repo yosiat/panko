@@ -75,12 +75,7 @@ class MainController < ActionController::Base
 
   def serialize_to_string
     data = Benchmark.data[:all]
-    serializer = Panko::ArraySerializer.new([], each_serializer: PostWithHasOneFastSerializer)
-    writer = Oj::StringWriter.new(mode: :rails)
-
-    serializer.serialize_to_writer(data, writer)
-
-    render text: writer.to_s, content_type: 'application/json'.freeze
+    render text: Panko::ArraySerializer.new(data, each_serializer: PostWithHasOneFastSerializer).to_json, content_type: 'application/json'.freeze
   end
 end
 
