@@ -12,12 +12,16 @@ module Panko
       def inherited(base)
         base._attributes = (_attributes || []).dup
         base._associations = (_associations || []).dup
+        base._has_one_associations = (_has_one_associations || []).dup
+        base._has_many_associations = (_has_many_associations || []).dup
 
         @_attributes = []
         @_associations = []
+        @_has_one_associations = []
+        @_has_many_associations = []
       end
 
-      attr_accessor :_attributes, :_associations
+      attr_accessor :_attributes, :_associations, :_has_one_associations, :_has_many_associations
 
       def attributes(*attrs)
         @_attributes.push(*attrs).uniq!
@@ -25,6 +29,8 @@ module Panko
 
 
       def has_one(name, options)
+        @_has_one_associations << { name: name, options: options.dup }
+
         has_one_attr = HasOneAttribute.new(name, options)
         constantize_attribute(has_one_attr.const_name, has_one_attr.const_value)
 
@@ -32,6 +38,8 @@ module Panko
       end
 
       def has_many(name, options)
+        @_has_many_associations << { name: name, options: options.dup }
+
         has_many_attr = HasManyAttribute.new(name, options)
         constantize_attribute(has_many_attr.const_name, has_many_attr.const_value)
 

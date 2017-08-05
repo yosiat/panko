@@ -1,14 +1,19 @@
 module Panko
   class SerializationDescriptor
-    def initialize(fields, method_fields)
+    def initialize(fields, method_fields, has_one_associations, has_many_associations)
       @fields = fields
       @method_fields = method_fields
+
+      @has_one_associations = has_one_associations
+      @has_many_associations = has_many_associations
     end
 
-    attr_reader :fields, :method_fields
+    attr_reader :fields, :method_fields, :has_one_associations, :has_many_associations
 
     def self.build(serializer, options)
       fields, method_fields = fields_of(serializer)
+      has_one_associations = build_associations(serializer._has_one_associations)
+      has_many_associations = build_associations(serializer._has_many_associations)
 
       only_filters = options.fetch(:only, [])
       except_filters = options.fetch(:except, [])
@@ -16,7 +21,7 @@ module Panko
       fields = apply_filters(fields, only_filters, except_filters)
       method_fields = apply_filters(method_fields, only_filters, except_filters)
 
-      SerializationDescriptor.new(fields, method_fields)
+      SerializationDescriptor.new(fields, method_fields, has_one_associations, has_many_associations)
     end
 
     def self.fields_of(serializer)
@@ -34,6 +39,15 @@ module Panko
       return fields, method_fields
     end
 
+    def self.build_associations(associations)
+      associations.map do |association|
+        options = association[:options]
+        serializer_const = resolve_serializer(options[:serializer])
+
+        [association[:name], SerializationDescriptor.build(serializer_const, options.except(:serializer))]
+      end
+    end
+
     def self.apply_filters(fields, only, except)
       # not for now :)
       return fields if only.is_a?(Hash) or except.is_a?(Hash)
@@ -42,6 +56,10 @@ module Panko
       return fields - except if except.present?
 
       fields
+    end
+
+    def self.resolve_serializer(serializer)
+      Object.const_get(serializer.name)
     end
 
   end
