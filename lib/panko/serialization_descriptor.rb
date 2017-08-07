@@ -11,17 +11,20 @@ module Panko
     attr_reader :fields, :method_fields, :has_one_associations, :has_many_associations
 
     def self.build(serializer, options={})
+      backend = Panko::SerializationDescriptorBackend.new
+
       fields, method_fields = fields_of(serializer)
-      has_one_associations = build_associations(serializer._has_one_associations)
-      has_many_associations = build_associations(serializer._has_many_associations)
+      backend.has_one_associations = build_associations(serializer._has_one_associations)
+      backend.has_many_associations = build_associations(serializer._has_many_associations)
 
       only_filters = options.fetch(:only, [])
       except_filters = options.fetch(:except, [])
 
-      fields = apply_filters(fields, only_filters, except_filters)
-      method_fields = apply_filters(method_fields, only_filters, except_filters)
+      backend.fields = apply_filters(fields, only_filters, except_filters)
+      backend.method_fields = apply_filters(method_fields, only_filters, except_filters)
 
-      SerializationDescriptor.new(fields, method_fields, has_one_associations, has_many_associations)
+
+      backend
     end
 
     def self.fields_of(serializer)

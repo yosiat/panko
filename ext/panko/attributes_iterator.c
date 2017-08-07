@@ -30,6 +30,7 @@ void panko_read_types_and_value(VALUE attributes_hash,
 }
 
 VALUE panko_each_attribute(VALUE obj,
+                           SerializationDescriptor descriptor,
                            VALUE attributes,
                            EachAttributeFunc func,
                            VALUE context) {
@@ -41,7 +42,7 @@ VALUE panko_each_attribute(VALUE obj,
 
   int i;
   for (i = 0; i < RARRAY_LEN(attributes); i++) {
-    VALUE member = rb_sym2str(RARRAY_AREF(attributes, i));
+    VALUE member = sd_sym2str(descriptor, RARRAY_AREF(attributes, i));
 
     VALUE value = rb_hash_aref(values, member);
     VALUE type_metadata = rb_hash_aref(types, member);
