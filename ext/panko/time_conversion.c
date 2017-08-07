@@ -18,12 +18,8 @@ VALUE is_iso8601_time_string(const char* value) {
   return r >= 0 ? Qtrue : Qfalse;
 }
 
-char* read_region_part(const char* value, const OnigRegion* region, int i) {
-  // TODO: validate
-  char* matched_value =
-      strndup(value + region->beg[i], region->end[i] - region->beg[i]);
-
-  return matched_value;
+void append_region_part(const char* buf, const char* after, const char* value, const OnigRegion* region, int i) {
+  sprintf(buf, "%s%.*s%s", buf, region->end[i] - region->beg[i], value + region->beg[i], after);
 }
 
 VALUE iso_ar_iso_datetime_string(const char* value) {
@@ -44,14 +40,22 @@ VALUE iso_ar_iso_datetime_string(const char* value) {
   if (r >= 0) {
     int i;
 
-    char* buf = ALLOC_N(char, 64);
-    int len = sprintf(
-        buf, "%s-%s-%sT%s:%s:%sZ", read_region_part(value, region, 1),
-        read_region_part(value, region, 2), read_region_part(value, region, 3),
-        read_region_part(value, region, 4), read_region_part(value, region, 5),
-        read_region_part(value, region, 6));
+    char* buf = ALLOC_N(char, 20);
+    sprintf(buf, "");
 
-    output = rb_str_new(buf, len);
+    append_region_part(buf, "-", value, region, 1);
+    append_region_part(buf, "-", value, region, 2);
+    append_region_part(buf, "T", value, region, 3);
+
+
+    append_region_part(buf, ":", value, region, 4);
+    append_region_part(buf, ":", value, region, 5);
+    append_region_part(buf, "Z", value, region, 6);
+
+    output = rb_str_new(buf, strlen(buf));
+
+    xfree(buf);
+
   }
 
   onig_region_free(region, 1);
