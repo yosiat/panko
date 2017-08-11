@@ -1,15 +1,5 @@
 module Panko
-  class SerializationDescriptor
-    def initialize(fields, method_fields, has_one_associations, has_many_associations)
-      @fields = fields
-      @method_fields = method_fields
-
-      @has_one_associations = has_one_associations
-      @has_many_associations = has_many_associations
-    end
-
-    attr_reader :fields, :method_fields, :has_one_associations, :has_many_associations
-
+  module SerializationDescriptor
     def self.build(serializer, options={})
       backend = Panko::SerializationDescriptorBackend.new
 
@@ -22,7 +12,6 @@ module Panko
 
       backend.fields = apply_filters(fields, only_filters, except_filters)
       backend.method_fields = apply_filters(method_fields, only_filters, except_filters)
-
 
       backend
     end
@@ -53,7 +42,7 @@ module Panko
 
     def self.apply_filters(fields, only, except)
       # not for now :)
-      return fields if only.is_a?(Hash) or except.is_a?(Hash)
+      return fields if only.is_a?(Hash) || except.is_a?(Hash)
 
       return fields & only if only.present?
       return fields - except if except.present?

@@ -18,8 +18,6 @@ VALUE serialization_descriptor_has_one_associations_ref(VALUE descriptor);
 VALUE serialization_descriptor_has_many_associations_ref(VALUE descriptor);
 
 SerializationDescriptor serialization_descriptor_read(VALUE descriptor);
-VALUE sd_sym2str(SerializationDescriptor sd, VALUE sym);
-
 void panko_init_serialization_descriptor(VALUE mPanko);
 
 #endif

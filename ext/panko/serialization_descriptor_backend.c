@@ -19,7 +19,6 @@ void serialization_descriptor_mark(SerializationDescriptor data) {
   rb_gc_mark(data->method_fields);
   rb_gc_mark(data->has_one_associations);
   rb_gc_mark(data->has_many_associations);
-  rb_gc_mark(data->sym2str_cache);
 }
 
 static VALUE serialization_descriptor_new(int argc, VALUE* argv, VALUE self) {
@@ -29,7 +28,6 @@ static VALUE serialization_descriptor_new(int argc, VALUE* argv, VALUE self) {
   sd->method_fields = Qnil;
   sd->has_one_associations = Qnil;
   sd->has_many_associations = Qnil;
-  sd->sym2str_cache = rb_hash_new();
 
   return Data_Wrap_Struct(cSerializationDescriptor,
                           serialization_descriptor_mark,
@@ -38,16 +36,6 @@ static VALUE serialization_descriptor_new(int argc, VALUE* argv, VALUE self) {
 
 SerializationDescriptor serialization_descriptor_read(VALUE descriptor) {
   return (SerializationDescriptor)DATA_PTR(descriptor);
-}
-
-VALUE sd_sym2str(SerializationDescriptor sd, VALUE sym) {
-  VALUE str = rb_hash_aref(sd->sym2str_cache, sym);
-  if (str == Qnil) {
-    str = rb_sym2str(sym);
-    rb_hash_aset(sd->sym2str_cache, sym, str);
-  }
-
-  return str;
 }
 
 VALUE serialization_descriptor_fields_set(VALUE self, VALUE fields) {

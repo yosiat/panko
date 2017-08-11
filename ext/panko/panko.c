@@ -44,8 +44,7 @@ void serialize_fields(VALUE subject,
     // TODO: create global cache from attribute_nabe to rb_sym2id
     VALUE result = rb_funcall(serializer, rb_sym2id(attribute_name), 0);
 
-    write_value(str_writer, sd_sym2str(descriptor, attribute_name), result,
-                Qnil);
+    write_value(str_writer, rb_sym2str(attribute_name), result, Qnil);
   }
 }
 
@@ -61,7 +60,7 @@ void serialize_has_one_associatoins(VALUE subject,
     VALUE association_descriptor = RARRAY_AREF(association, 1);
     VALUE value = rb_funcall(subject, rb_sym2id(name), 0);
 
-    serialize_subject(sd_sym2str(descriptor, name), value, str_writer, Qnil,
+    serialize_subject(rb_sym2str(name), value, str_writer, Qnil,
                       serialization_descriptor_read(association_descriptor));
   }
 }
@@ -78,7 +77,7 @@ void serialize_has_many_associatoins(VALUE subject,
     VALUE association_descriptor = RARRAY_AREF(association, 1);
     VALUE value = rb_funcall(subject, rb_sym2id(name), 0);
 
-    serialize_subjects(sd_sym2str(descriptor, name), value, str_writer,
+    serialize_subjects(rb_sym2str(name), value, str_writer,
                        serialization_descriptor_read(association_descriptor),
                        Qnil);
   }
