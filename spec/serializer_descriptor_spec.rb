@@ -16,7 +16,7 @@ describe Panko::SerializationDescriptor do
     end
 
     it "method attributes" do
-      class FooWithMethodsSerializer < Panko::Serializer
+      class SerializerWithMethodsSerializer < Panko::Serializer
         attributes :name, :address, :something
 
         def something
@@ -24,11 +24,28 @@ describe Panko::SerializationDescriptor do
         end
       end
 
-      descriptor = Panko::SerializationDescriptor.build(FooWithMethodsSerializer)
+      descriptor = Panko::SerializationDescriptor.build(SerializerWithMethodsSerializer)
 
       expect(descriptor).not_to be_nil
       expect(descriptor.fields).to eq(%i[name address])
       expect(descriptor.method_fields).to eq([:something])
+    end
+
+
+    it "creates serializer if we have method field" do
+      class VirtualSerialier < Panko::Serializer
+        attributes :virtual
+
+        def virtual
+          "Hello #{object.name}"
+        end
+      end
+
+      descriptor = Panko::SerializationDescriptor.build(VirtualSerialier)
+      serializer = descriptor.build_serializer
+
+      expect(serializer).not_to be_nil
+      expect(serializer).to be_a(Panko::Serializer)
     end
   end
 

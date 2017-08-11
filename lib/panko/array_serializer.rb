@@ -12,12 +12,11 @@ module Panko
 
       serializer_options = {
         only: options.fetch(:only, []),
-        except: options.fetch(:except, []),
-        context: options.fetch(:context, nil)
+        except: options.fetch(:except, [])
       }
 
       @descriptor = Panko::CACHE.fetch(@each_serializer, serializer_options)
-      @serializer_instance = @each_serializer.new(serializer_options)
+      @context = options.fetch(:context, nil)
     end
 
     def to_json
@@ -34,7 +33,7 @@ module Panko
 
     def serialize_to_json(subjects)
       writer = Oj::StringWriter.new(mode: :rails)
-      Panko::serialize_subjects(subjects.to_a, writer, @descriptor, @serializer_instance)
+      Panko::serialize_subjects(subjects.to_a, writer, @descriptor, @context)
       writer.to_s
     end
   end

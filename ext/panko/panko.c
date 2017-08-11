@@ -32,24 +32,29 @@ void panko_attributes_iter(VALUE object,
 
 void serialize_fields(VALUE subject,
                       VALUE str_writer,
-                      VALUE serializer,
-                      SerializationDescriptor descriptor) {
+                      SerializationDescriptor descriptor,
+                      VALUE context) {
   panko_each_attribute(subject, descriptor, descriptor->fields,
                        panko_attributes_iter, str_writer);
 
   VALUE method_fields = descriptor->method_fields;
-  long i;
-  for (i = 0; i < RARRAY_LEN(method_fields); i++) {
-    VALUE attribute_name = RARRAY_AREF(method_fields, i);
-    // TODO: create global cache from attribute_nabe to rb_sym2id
-    VALUE result = rb_funcall(serializer, rb_sym2id(attribute_name), 0);
+  if (RARRAY_LEN(method_fields) > 0) {
+    VALUE real_serializer = sd_build_serializer(descriptor);
+    sd_apply_serializer_config(real_serializer, subject, context);
 
-    write_value(str_writer, rb_sym2str(attribute_name), result, Qnil);
+    long i;
+    for (i = 0; i < RARRAY_LEN(method_fields); i++) {
+      VALUE attribute_name = RARRAY_AREF(method_fields, i);
+      VALUE result = rb_funcall(real_serializer, rb_sym2id(attribute_name), 0);
+
+      write_value(str_writer, rb_sym2str(attribute_name), result, Qnil);
+    }
   }
 }
 
 void serialize_has_one_associatoins(VALUE subject,
                                     VALUE str_writer,
+                                    VALUE context,
                                     SerializationDescriptor descriptor,
                                     VALUE associations) {
   long i;
@@ -60,13 +65,15 @@ void serialize_has_one_associatoins(VALUE subject,
     VALUE association_descriptor = RARRAY_AREF(association, 1);
     VALUE value = rb_funcall(subject, rb_sym2id(name), 0);
 
-    serialize_subject(rb_sym2str(name), value, str_writer, Qnil,
-                      serialization_descriptor_read(association_descriptor));
+    serialize_subject(rb_sym2str(name), value, str_writer,
+                      serialization_descriptor_read(association_descriptor),
+                      context);
   }
 }
 
 void serialize_has_many_associatoins(VALUE subject,
                                      VALUE str_writer,
+                                     VALUE context,
                                      SerializationDescriptor descriptor,
                                      VALUE associations) {
   long i;
@@ -79,26 +86,26 @@ void serialize_has_many_associatoins(VALUE subject,
 
     serialize_subjects(rb_sym2str(name), value, str_writer,
                        serialization_descriptor_read(association_descriptor),
-                       Qnil);
+                       context);
   }
 }
 
 VALUE serialize_subject(VALUE key,
                         VALUE subject,
                         VALUE str_writer,
-                        VALUE serializer,
-                        SerializationDescriptor descriptor) {
+                        SerializationDescriptor descriptor,
+                        VALUE context) {
   rb_funcall(str_writer, push_object_id, 1, key);
 
-  serialize_fields(subject, str_writer, serializer, descriptor);
+  serialize_fields(subject, str_writer, descriptor, context);
 
   if (RARRAY_LEN(descriptor->has_one_associations) >= 0) {
-    serialize_has_one_associatoins(subject, str_writer, descriptor,
+    serialize_has_one_associatoins(subject, str_writer, context, descriptor,
                                    descriptor->has_one_associations);
   }
 
   if (RARRAY_LEN(descriptor->has_many_associations) >= 0) {
-    serialize_has_many_associatoins(subject, str_writer, descriptor,
+    serialize_has_many_associatoins(subject, str_writer, context, descriptor,
                                     descriptor->has_many_associations);
   }
 
@@ -111,7 +118,7 @@ VALUE serialize_subjects(VALUE key,
                          VALUE subjects,
                          VALUE str_writer,
                          SerializationDescriptor descriptor,
-                         VALUE serializer) {
+                         VALUE context) {
   rb_funcall(str_writer, push_array_id, 1, key);
 
   if (!RB_TYPE_P(subjects, T_ARRAY)) {
@@ -121,8 +128,7 @@ VALUE serialize_subjects(VALUE key,
   long i;
   for (i = 0; i < RARRAY_LEN(subjects); i++) {
     VALUE subject = RARRAY_AREF(subjects, i);
-
-    serialize_subject(Qnil, subject, str_writer, serializer, descriptor);
+    serialize_subject(Qnil, subject, str_writer, descriptor, context);
   }
 
   rb_funcall(str_writer, pop_id, 0);
@@ -133,19 +139,19 @@ VALUE serialize_subjects(VALUE key,
 VALUE serialize_subject_api(VALUE klass,
                             VALUE subject,
                             VALUE str_writer,
-                            VALUE serializer,
-                            VALUE descriptor) {
-  return serialize_subject(Qnil, subject, str_writer, serializer,
-                           serialization_descriptor_read(descriptor));
+                            VALUE descriptor,
+                            VALUE context) {
+  return serialize_subject(Qnil, subject, str_writer,
+                           serialization_descriptor_read(descriptor), context);
 }
 
 VALUE serialize_subjects_api(VALUE klass,
                              VALUE subjects,
                              VALUE str_writer,
                              VALUE descriptor,
-                             VALUE serializer) {
+                             VALUE context) {
   serialize_subjects(Qnil, subjects, str_writer,
-                     serialization_descriptor_read(descriptor), serializer);
+                     serialization_descriptor_read(descriptor), context);
 
   return Qnil;
 }

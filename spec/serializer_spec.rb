@@ -113,6 +113,34 @@ describe Panko::Serializer do
                              "address" => foo.address
                            })
     end
+
+    it "allows virtual method in has one serializer" do
+      class VirtualSerialier < Panko::Serializer
+        attributes :virtual
+
+        def virtual
+          "Hello #{object.name}"
+        end
+      end
+
+      class FooHolderHasOneVirtualSerializer < Panko::Serializer
+        attributes :name
+
+        has_one :foo, serializer: VirtualSerialier
+      end
+
+      serializer = FooHolderHasOneVirtualSerializer.new
+
+      foo = Foo.create(name: Faker::Lorem.word, address: Faker::Lorem.word).reload
+      foo_holder = FooHolder.create(name: Faker::Lorem.word, foo: foo).reload
+
+      output = serializer.serialize foo_holder
+
+      expect(output).to eq("name" => foo_holder.name,
+                           "foo" => {
+                              "virtual" => "Hello #{foo.name}"
+                          })
+    end
   end
 
   context "has_many" do

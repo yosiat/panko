@@ -9,6 +9,8 @@ module Panko
 
       fields, method_fields = fields_of(serializer)
 
+      backend.type = serializer
+
       backend.fields = apply_filters(
         fields,
         serializer_only_filters,
@@ -93,6 +95,5 @@ module Panko
     def self.resolve_serializer(serializer)
       Object.const_get(serializer.name)
     end
-
   end
 end

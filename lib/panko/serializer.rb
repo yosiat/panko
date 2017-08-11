@@ -32,11 +32,14 @@ module Panko
     end
 
     def initialize(options = {})
-      @context = options.fetch(:context, nil)
       @descriptor = Panko::CACHE.fetch(self.class, options)
+
+      @context = options.fetch(:context, nil)
+      @object = nil
     end
 
     attr_reader :object, :context
+    attr_writer :object
 
     def serialize(object, writer = nil)
       Oj.load(serialize_to_json(object, writer))
@@ -46,7 +49,7 @@ module Panko
       @object = object
 
       writer ||= Oj::StringWriter.new(mode: :rails)
-      Panko::serialize_subject(object, writer, self, @descriptor)
+      Panko::serialize_subject(object, writer, @descriptor, @context)
 
       writer.to_s
     end

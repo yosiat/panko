@@ -12,7 +12,7 @@ VALUE is_iso8601_time_string(const char* value) {
   start = str;
   range = end;
   OnigPosition r = onig_search(iso8601_time_regex, str, end, start, range, NULL,
-                  ONIG_OPTION_NONE);
+                               ONIG_OPTION_NONE);
 
   return r >= 0 ? Qtrue : Qfalse;
 }
@@ -34,8 +34,8 @@ VALUE iso_ar_iso_datetime_string(const char* value) {
   end = str + strlen(value);
   start = str;
   range = end;
-  OnigPosition r = onig_search(ar_iso_datetime_regex, str, end, start, range, region,
-                  ONIG_OPTION_NONE);
+  OnigPosition r = onig_search(ar_iso_datetime_regex, str, end, start, range,
+                               region, ONIG_OPTION_NONE);
 
   VALUE output = Qnil;
   if (r >= 0) {
@@ -67,7 +67,7 @@ VALUE iso_ar_iso_datetime_string(const char* value) {
   return output;
 }
 
-void build_regex(OnigRegex *reg, const UChar* pattern) {
+void build_regex(OnigRegex* reg, const UChar* pattern) {
   OnigErrorInfo einfo;
 
   int r = onig_new(reg, pattern, pattern + strlen((char*)pattern),
