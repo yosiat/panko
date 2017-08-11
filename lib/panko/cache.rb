@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "concurrent"
 
 
@@ -39,4 +40,3 @@ module Panko
 
   CACHE = Panko::Cache.new
 end
-

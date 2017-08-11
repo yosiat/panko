@@ -107,15 +107,6 @@ VALUE serialize_subject(VALUE key,
   return Qnil;
 }
 
-VALUE serialize_subject_api(VALUE klass,
-                            VALUE subject,
-                            VALUE str_writer,
-                            VALUE serializer,
-                            VALUE descriptor) {
-  return serialize_subject(Qnil, subject, str_writer, serializer,
-                           serialization_descriptor_read(descriptor));
-}
-
 VALUE serialize_subjects(VALUE key,
                          VALUE subjects,
                          VALUE str_writer,
@@ -137,6 +128,15 @@ VALUE serialize_subjects(VALUE key,
   rb_funcall(str_writer, pop_id, 0);
 
   return Qnil;
+}
+
+VALUE serialize_subject_api(VALUE klass,
+                            VALUE subject,
+                            VALUE str_writer,
+                            VALUE serializer,
+                            VALUE descriptor) {
+  return serialize_subject(Qnil, subject, str_writer, serializer,
+                           serialization_descriptor_read(descriptor));
 }
 
 VALUE serialize_subjects_api(VALUE klass,

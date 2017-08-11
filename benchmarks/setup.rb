@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 ###########################################
 # Setup active record models
 ##########################################
@@ -59,5 +60,3 @@ Post.transaction do
     )
   end
 end
-
-

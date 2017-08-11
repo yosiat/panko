@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative "./support"
 
 def pg_type_convert(type_klass, from, to)
@@ -32,4 +33,3 @@ pg_type_convert PG::TextDecoder::Float, "Infinity", ::Float::INFINITY
 pg_type_convert PG::TextDecoder::Float, "-Infinity", ::Float::INFINITY
 pg_type_convert PG::TextDecoder::Float, "NaN", ::Float::NaN
 pg_time
-

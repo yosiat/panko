@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Panko
   module SerializationDescriptor
     def self.build(serializer, options={})
