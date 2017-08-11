@@ -1,14 +1,15 @@
-require 'bundler/gem_tasks'
-require 'rspec/core/rake_task'
-require 'json'
-require 'terminal-table'
-require 'rake/extensiontask'
+# frozen_string_literal: true
+require "bundler/gem_tasks"
+require "rspec/core/rake_task"
+require "json"
+require "terminal-table"
+require "rake/extensiontask"
 
-gem = Gem::Specification.load( File.dirname(__FILE__) + '/panko.gemspec' )
+gem = Gem::Specification.load( File.dirname(__FILE__) + "/panko.gemspec" )
 
 
-Rake::ExtensionTask.new('panko', gem) do |ext|
-  ext.lib_dir = 'lib/panko'
+Rake::ExtensionTask.new("panko", gem) do |ext|
+  ext.lib_dir = "lib/panko"
 end
 
 Gem::PackageTask.new(gem) do |pkg|
@@ -22,7 +23,7 @@ task default: :spec
 
 
 def run_benchmarks(files, items_count: 14_000)
-  headings = ['Benchmark', 'ip/s', 'allocs/retained']
+  headings = ["Benchmark", "ip/s", "allocs/retained"]
   files.each do |benchmark_file|
     output = `ITEMS_COUNT=#{items_count} RAILS_ENV=production ruby #{benchmark_file}`
 
@@ -32,29 +33,29 @@ def run_benchmarks(files, items_count: 14_000)
     end
 
     puts "\n\n"
-    title = File.basename(benchmark_file, '.rb')
+    title = File.basename(benchmark_file, ".rb")
     table = Terminal::Table.new title: title, headings: headings, rows: rows
     puts table
   end
 end
 
-desc 'Run all benchmarks'
+desc "Run all benchmarks"
 task :benchmarks do
-  run_benchmarks Dir[File.join(__dir__, 'benchmarks', '**', 'bm_*')]
+  run_benchmarks Dir[File.join(__dir__, "benchmarks", "**", "bm_*")]
 end
 
-desc 'Type Casts - Benchmarks'
+desc "Type Casts - Benchmarks"
 task :bm_type_casts do
-  run_benchmarks Dir[File.join(__dir__, 'benchmarks', 'type_casts', 'bm_*')]
+  run_benchmarks Dir[File.join(__dir__, "benchmarks", "type_casts", "bm_*")]
 end
 
-desc 'Sanity Benchmarks'
+desc "Sanity Benchmarks"
 task :sanity do
-  puts Time.now.strftime('%d/%m %H:%M:%S')
-  puts '=========================='
+  puts Time.now.strftime("%d/%m %H:%M:%S")
+  puts "=========================="
 
   run_benchmarks [
-    File.join(__dir__, 'benchmarks', 'sanity.rb')
+    File.join(__dir__, "benchmarks", "sanity.rb")
   ], items_count: 2300
 
   puts "\n\n"
