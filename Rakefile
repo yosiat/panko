@@ -4,13 +4,19 @@ require 'json'
 require 'terminal-table'
 require 'rake/extensiontask'
 
-Rake::ExtensionTask.new('panko') do |ext|
+gem = Gem::Specification.load( File.dirname(__FILE__) + '/panko.gemspec' )
+
+
+Rake::ExtensionTask.new('panko', gem) do |ext|
   ext.lib_dir = 'lib/panko'
+end
+
+Gem::PackageTask.new(gem) do |pkg|
+  pkg.need_zip = pkg.need_tar = false
 end
 
 RSpec::Core::RakeTask.new(:spec)
 Rake::Task[:spec].prerequisites << :compile
-
 
 task default: :spec
 

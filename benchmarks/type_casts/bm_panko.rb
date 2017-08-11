@@ -44,7 +44,10 @@ def db_panko_time
   end
 end
 
+db_panko_time
+utc_panko_time
 
+exit
 
 panko_type_convert ActiveRecord::Type::String, 1, '1'
 panko_type_convert ActiveRecord::Type::Text, 1, '1'
