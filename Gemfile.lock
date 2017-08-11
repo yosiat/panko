@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    panko (0.2.5)
+    panko (0.2.7)
       concurrent-ruby
       oj (~> 3.2.0)
 
@@ -48,6 +48,7 @@ GEM
     arel (6.0.4)
     benchmark-ips (2.7.2)
     builder (3.2.3)
+    byebug (9.0.6)
     concurrent-ruby (1.0.5)
     diff-lcs (1.3)
     erubis (2.7.0)
@@ -143,6 +144,7 @@ DEPENDENCIES
   activesupport (~> 4.2.9)
   benchmark-ips
   bundler (~> 1.14)
+  byebug
   faker
   memory_profiler
   panko!
