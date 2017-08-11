@@ -4,7 +4,7 @@ module Panko
   class ArraySerializer
     attr_accessor :subjects
 
-    def initialize subjects, options = {}
+    def initialize(subjects, options = {})
       @subjects = subjects
       @each_serializer = options[:each_serializer]
 

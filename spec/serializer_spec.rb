@@ -219,7 +219,7 @@ describe Panko::Serializer do
   end
 
   context 'filters' do
-    xit 'support nested "only" filter' do
+    it 'support nested "only" filter' do
 
       class FoosHolderSerializer < Panko::Serializer
         attributes :name
