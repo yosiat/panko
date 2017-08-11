@@ -18,8 +18,12 @@ VALUE is_iso8601_time_string(const char* value) {
   return r >= 0 ? Qtrue : Qfalse;
 }
 
-void append_region_part(const char* buf, const char* after, const char* value, const OnigRegion* region, int i) {
-  sprintf(buf, "%s%.*s%s", buf, region->end[i] - region->beg[i], value + region->beg[i], after);
+void append_region_part(char* buf,
+                        const char* value,
+                        const OnigRegion* region,
+                        int i) {
+  int substringLength = region->end[i] - region->beg[i];
+  strncat(buf, value + region->beg[i], substringLength);
 }
 
 VALUE iso_ar_iso_datetime_string(const char* value) {
@@ -40,22 +44,28 @@ VALUE iso_ar_iso_datetime_string(const char* value) {
   if (r >= 0) {
     int i;
 
-    char* buf = ALLOC_N(char, 20);
+    char buf[21];
     sprintf(buf, "");
 
-    append_region_part(buf, "-", value, region, 1);
-    append_region_part(buf, "-", value, region, 2);
-    append_region_part(buf, "T", value, region, 3);
+    append_region_part(buf, value, region, 1);
+    strncat(buf, "-", 1);
 
+    append_region_part(buf, value, region, 2);
+    strncat(buf, "-", 1);
 
-    append_region_part(buf, ":", value, region, 4);
-    append_region_part(buf, ":", value, region, 5);
-    append_region_part(buf, "Z", value, region, 6);
+    append_region_part(buf, value, region, 3);
+    strncat(buf, "T", 1);
+
+    append_region_part(buf, value, region, 4);
+    strncat(buf, ":", 1);
+
+    append_region_part(buf, value, region, 5);
+    strncat(buf, ":", 1);
+
+    append_region_part(buf, value, region, 6);
+    strncat(buf, "Z", 1);
 
     output = rb_str_new(buf, strlen(buf));
-
-    xfree(buf);
-
   }
 
   onig_region_free(region, 1);
