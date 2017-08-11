@@ -4,15 +4,14 @@ static regex_t* iso8601_time_regex;
 static regex_t* ar_iso_datetime_regex;
 
 VALUE is_iso8601_time_string(const char* value) {
-  int r;
-  unsigned char *start, *range, *end;
+  const UChar *start, *range, *end;
 
   const UChar* str = (const UChar*)(value);
 
-  end = str + strlen((char*)str);
+  end = str + strlen(value);
   start = str;
   range = end;
-  r = onig_search(iso8601_time_regex, str, end, start, range, NULL,
+  OnigPosition r = onig_search(iso8601_time_regex, str, end, start, range, NULL,
                   ONIG_OPTION_NONE);
 
   return r >= 0 ? Qtrue : Qfalse;
@@ -22,28 +21,24 @@ void append_region_part(char* buf,
                         const char* value,
                         const OnigRegion* region,
                         int i) {
-  int substringLength = region->end[i] - region->beg[i];
+  long substringLength = region->end[i] - region->beg[i];
   strncat(buf, value + region->beg[i], substringLength);
 }
 
 VALUE iso_ar_iso_datetime_string(const char* value) {
-  int r;
-  unsigned char *start, *range, *end;
-  OnigRegion* region;
-  region = onig_region_new();
+  const UChar *start, *range, *end;
+  OnigRegion* region = onig_region_new();
 
   const UChar* str = (const UChar*)(value);
 
-  end = str + strlen((char*)str);
+  end = str + strlen(value);
   start = str;
   range = end;
-  r = onig_search(ar_iso_datetime_regex, str, end, start, range, region,
+  OnigPosition r = onig_search(ar_iso_datetime_regex, str, end, start, range, region,
                   ONIG_OPTION_NONE);
 
   VALUE output = Qnil;
   if (r >= 0) {
-    int i;
-
     char buf[21];
     sprintf(buf, "");
 
@@ -72,7 +67,7 @@ VALUE iso_ar_iso_datetime_string(const char* value) {
   return output;
 }
 
-void build_regex(regex_t* reg, const UChar* pattern) {
+void build_regex(OnigRegex *reg, const UChar* pattern) {
   OnigErrorInfo einfo;
 
   int r = onig_new(reg, pattern, pattern + strlen((char*)pattern),
@@ -81,7 +76,7 @@ void build_regex(regex_t* reg, const UChar* pattern) {
 
   if (r != ONIG_NORMAL) {
     char s[ONIG_MAX_ERROR_MESSAGE_LEN];
-    onig_error_code_to_str(s, r, &einfo);
+    onig_error_code_to_str((UChar*)s, r, &einfo);
     printf("ERROR: %s\n", s);
   }
 }
