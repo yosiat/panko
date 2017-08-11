@@ -1,4 +1,4 @@
-require_relative './support'
+require_relative "./support"
 
 def panko_type_convert(type_klass, from, to)
   converter = type_klass.new
@@ -16,7 +16,7 @@ end
 
 def utc_panko_time
 	date = DateTime.new(2017, 3, 4, 12, 45, 23)
-	tz = ActiveSupport::TimeZone.new('UTC')
+	tz = ActiveSupport::TimeZone.new("UTC")
 	from = date.in_time_zone(tz).iso8601
 
   type = ActiveRecord::ConnectionAdapters::PostgreSQL::OID::DateTime.new
@@ -37,9 +37,9 @@ def db_panko_time
   type = ActiveRecord::ConnectionAdapters::PostgreSQL::OID::DateTime.new
   converter = ActiveRecord::AttributeMethods::TimeZoneConversion::TimeZoneConverter.new(type)
 
-  from = '2017-07-10 09:26:40.937392'
+  from = "2017-07-10 09:26:40.937392"
 
-  Benchmark.ams('Panko_Time_TypeCast') do
+  Benchmark.ams("Panko_Time_TypeCast") do
 		Panko::_type_cast(converter, from)
   end
 end
@@ -49,17 +49,17 @@ utc_panko_time
 
 exit
 
-panko_type_convert ActiveRecord::Type::String, 1, '1'
-panko_type_convert ActiveRecord::Type::Text, 1, '1'
-panko_type_convert ActiveRecord::Type::Integer, '1', 1
-panko_type_convert ActiveRecord::Type::Float, '1.23', 1.23
-panko_type_convert ActiveRecord::Type::Float, 'Infinity', ::Float::INFINITY
-panko_type_convert ActiveRecord::Type::Boolean, 'true', true
-panko_type_convert ActiveRecord::Type::Boolean, 't', true
+panko_type_convert ActiveRecord::Type::String, 1, "1"
+panko_type_convert ActiveRecord::Type::Text, 1, "1"
+panko_type_convert ActiveRecord::Type::Integer, "1", 1
+panko_type_convert ActiveRecord::Type::Float, "1.23", 1.23
+panko_type_convert ActiveRecord::Type::Float, "Infinity", ::Float::INFINITY
+panko_type_convert ActiveRecord::Type::Boolean, "true", true
+panko_type_convert ActiveRecord::Type::Boolean, "t", true
 
-panko_type_convert ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Integer, '1', 1
-panko_type_convert ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Float, '1.23', 1.23
-panko_type_convert ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Float, 'Infinity', ::Float::INFINITY
+panko_type_convert ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Integer, "1", 1
+panko_type_convert ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Float, "1.23", 1.23
+panko_type_convert ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Float, "Infinity", ::Float::INFINITY
 
 panko_type_convert ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Json, '{"a":1}', {a:1}
 db_panko_time

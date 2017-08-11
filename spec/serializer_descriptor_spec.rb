@@ -1,19 +1,21 @@
-require 'spec_helper'
+# frozen_string_literal: true
+
+require "spec_helper"
 
 describe Panko::SerializationDescriptor do
   class FooSerializer < Panko::Serializer
     attributes :name, :address
   end
 
-  context 'attributes' do
-    it 'simple fields' do
+  context "attributes" do
+    it "simple fields" do
       descriptor = Panko::SerializationDescriptor.build(FooSerializer)
 
       expect(descriptor).not_to be_nil
-      expect(descriptor.fields).to eq([:name, :address])
+      expect(descriptor.fields).to eq(%i[name address])
     end
 
-    it 'method attributes' do
+    it "method attributes" do
       class FooWithMethodsSerializer < Panko::Serializer
         attributes :name, :address, :something
 
@@ -25,13 +27,13 @@ describe Panko::SerializationDescriptor do
       descriptor = Panko::SerializationDescriptor.build(FooWithMethodsSerializer)
 
       expect(descriptor).not_to be_nil
-      expect(descriptor.fields).to eq([:name, :address])
+      expect(descriptor.fields).to eq(%i[name address])
       expect(descriptor.method_fields).to eq([:something])
     end
   end
 
-  context 'associations' do
-    it 'has_one: build_descriptor' do
+  context "associations" do
+    it "has_one: build_descriptor" do
       class FooHolderHasOneSerializer < Panko::Serializer
         attributes :name
 
@@ -54,7 +56,7 @@ describe Panko::SerializationDescriptor do
       expect(foo_association.last.method_fields).to eq(foo_descriptor.method_fields)
     end
 
-    it 'has_many: builds descriptor' do
+    it "has_many: builds descriptor" do
       class FoosHasManyHolderSerializer < Panko::Serializer
         attributes :name
 
@@ -77,12 +79,10 @@ describe Panko::SerializationDescriptor do
       expect(foo_association.last.fields).to eq(foo_descriptor.fields)
       expect(foo_association.last.method_fields).to eq(foo_descriptor.method_fields)
     end
-
   end
 
-
-  context 'filter' do
-    it 'only' do
+  context "filter" do
+    it "only" do
       descriptor = Panko::SerializationDescriptor.build(FooSerializer, only: [:name])
 
       expect(descriptor).not_to be_nil
@@ -90,7 +90,7 @@ describe Panko::SerializationDescriptor do
       expect(descriptor.method_fields).to be_empty
     end
 
-    it 'except' do
+    it "except" do
       descriptor = Panko::SerializationDescriptor.build(FooSerializer, except: [:name])
 
       expect(descriptor).not_to be_nil
@@ -98,8 +98,8 @@ describe Panko::SerializationDescriptor do
       expect(descriptor.method_fields).to be_empty
     end
 
-    describe 'association filters' do
-      it 'accepts only as option' do
+    describe "association filters" do
+      it "accepts only as option" do
         class FoosHolderSerializer < Panko::Serializer
           attributes :name
           has_many :foos, serializer: FooSerializer

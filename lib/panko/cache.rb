@@ -1,4 +1,4 @@
-require 'concurrent'
+require "concurrent"
 
 
 module Panko

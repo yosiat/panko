@@ -1,24 +1,24 @@
-require 'spec_helper'
+# frozen_string_literal: true
+
+require "spec_helper"
 
 describe Panko::Serializer do
   class FooSerializer < Panko::Serializer
     attributes :name, :address
   end
 
-  context 'attributes' do
-    it 'instance variables' do
+  context "attributes" do
+    it "instance variables" do
       serializer = FooSerializer.new
       foo = Foo.create(name: Faker::Lorem.word, address: Faker::Lorem.word).reload
 
       output = serializer.serialize foo
 
-      expect(output).to eq({
-        'name' => foo.name,
-        'address' => foo.address
-      })
+      expect(output).to eq("name" => foo.name,
+                           "address" => foo.address)
     end
 
-    it 'method attributes' do
+    it "method attributes" do
       class FooWithMethodsSerializer < Panko::Serializer
         attributes :name, :address, :something
 
@@ -32,14 +32,12 @@ describe Panko::Serializer do
       foo = Foo.create(name: Faker::Lorem.word, address: Faker::Lorem.word).reload
       output = serializer.serialize foo
 
-      expect(output).to eq({
-        'name' => foo.name,
-        'address' => foo.address,
-        'something' => "#{foo.name} #{foo.address}"
-      })
+      expect(output).to eq("name" => foo.name,
+                           "address" => foo.address,
+                           "something" => "#{foo.name} #{foo.address}")
     end
 
-    it 'serializes time correctly' do
+    it "serializes time correctly" do
       ObjectWithTime = Struct.new(:created_at)
       class ObjectWithTimeSerializer < Panko::Serializer
         attributes :created_at
@@ -49,14 +47,12 @@ describe Panko::Serializer do
 
       output = ObjectWithTimeSerializer.new.serialize obj
 
-      expect(output).to eq({
-        'created_at' => obj.created_at.xmlschema
-      })
+      expect(output).to eq("created_at" => obj.created_at.xmlschema)
     end
   end
 
-  context 'context' do
-    it 'passes context to attribute methods' do
+  context "context" do
+    it "passes context to attribute methods" do
       class FooWithContextSerializer < Panko::Serializer
         attributes :name, :context_value
 
@@ -71,40 +67,33 @@ describe Panko::Serializer do
 
       output = serializer.serialize foo
 
-      expect(output).to eq({
-        'name' => foo.name,
-        'context_value' => context[:value]
-      })
+      expect(output).to eq("name" => foo.name,
+                           "context_value" => context[:value])
     end
   end
 
-  context 'filter' do
-    it 'only' do
+  context "filter" do
+    it "only" do
       serializer = FooSerializer.new(only: [:name])
       foo = Foo.create(name: Faker::Lorem.word, address: Faker::Lorem.word).reload
 
       output = serializer.serialize foo
 
-      expect(output).to eq({
-        'name' => foo.name
-      })
+      expect(output).to eq("name" => foo.name)
     end
 
-    it 'except' do
+    it "except" do
       serializer = FooSerializer.new(except: [:name])
       foo = Foo.create(name: Faker::Lorem.word, address: Faker::Lorem.word).reload
 
       output = serializer.serialize foo
 
-      expect(output).to eq({
-        'address' => foo.address
-      })
+      expect(output).to eq("address" => foo.address)
     end
   end
 
-  context 'has_one' do
-    it 'serializes using the given serializer' do
-
+  context "has_one" do
+    it "serializes using the given serializer" do
       class FooHolderHasOneSerializer < Panko::Serializer
         attributes :name
 
@@ -118,18 +107,16 @@ describe Panko::Serializer do
 
       output = serializer.serialize foo_holder
 
-      expect(output).to eq({
-        'name' => foo_holder.name,
-        'foo' => {
-          'name' => foo.name,
-          'address' => foo.address
-        }
-      })
+      expect(output).to eq("name" => foo_holder.name,
+                           "foo" => {
+                             "name" => foo.name,
+                             "address" => foo.address
+                           })
     end
   end
 
-  context 'has_many' do
-    it 'serializes using the given serializer' do
+  context "has_many" do
+    it "serializes using the given serializer" do
       class FoosHasManyHolderSerializer < Panko::Serializer
         attributes :name
 
@@ -144,22 +131,20 @@ describe Panko::Serializer do
 
       output = serializer.serialize foos_holder
 
-      expect(output).to eq({
-        'name' => foos_holder.name,
-        'foos' => [
-          {
-            'name' => foo1.name,
-            'address' => foo1.address
-          },
-          {
-            'name' => foo2.name,
-            'address' => foo2.address
-          }
-        ]
-      })
+      expect(output).to eq("name" => foos_holder.name,
+                           "foos" => [
+                             {
+                               "name" => foo1.name,
+                               "address" => foo1.address
+                             },
+                             {
+                               "name" => foo2.name,
+                               "address" => foo2.address
+                             }
+                           ])
     end
 
-    it 'accepts only as option' do
+    it "accepts only as option" do
       class FoosHolderWithOnlySerializer < Panko::Serializer
         attributes :name
 
@@ -174,20 +159,18 @@ describe Panko::Serializer do
 
       output = serializer.serialize foos_holder
 
-      expect(output).to eq({
-        'name' => foos_holder.name,
-        'foos' => [
-          {
-            'address' => foo1.address
-          },
-          {
-            'address' => foo2.address
-          }
-        ]
-      })
+      expect(output).to eq("name" => foos_holder.name,
+                           "foos" => [
+                             {
+                               "address" => foo1.address
+                             },
+                             {
+                               "address" => foo2.address
+                             }
+                           ])
     end
 
-    it 'filters associations' do
+    it "filters associations" do
       class FoosHolderForFilterTestSerializer < Panko::Serializer
         attributes :name
 
@@ -202,25 +185,21 @@ describe Panko::Serializer do
 
       output = serializer.serialize foos_holder
 
-
-      expect(output).to eq({
-        'foos' => [
-          {
-            'name' => foo1.name,
-            'address' => foo1.address
-          },
-          {
-            'name' => foo2.name,
-            'address' => foo2.address
-          }
-        ]
-      })
+      expect(output).to eq("foos" => [
+                             {
+                               "name" => foo1.name,
+                               "address" => foo1.address
+                             },
+                             {
+                               "name" => foo2.name,
+                               "address" => foo2.address
+                             }
+                           ])
     end
   end
 
-  context 'filters' do
+  context "filters" do
     it 'support nested "only" filter' do
-
       class FoosHolderSerializer < Panko::Serializer
         attributes :name
         has_many :foos, serializer: FooSerializer
@@ -234,17 +213,15 @@ describe Panko::Serializer do
 
       output = serializer.serialize foos_holder
 
-      expect(output).to eq({
-        'name' => foos_holder.name,
-        'foos' => [
-          {
-            'address' => foo1.address,
-          },
-          {
-            'address' => foo2.address,
-          }
-        ]
-      })
+      expect(output).to eq("name" => foos_holder.name,
+                           "foos" => [
+                             {
+                               "address" => foo1.address
+                             },
+                             {
+                               "address" => foo2.address
+                             }
+                           ])
     end
   end
 end

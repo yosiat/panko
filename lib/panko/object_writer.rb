@@ -1,4 +1,4 @@
-require 'oj'
+require "oj"
 
 module Panko
   class ObjectWriter

@@ -1,6 +1,6 @@
-require_relative './benchmarking_support'
-require_relative './app'
-require_relative './setup'
+require_relative "./benchmarking_support"
+require_relative "./app"
+require_relative "./setup"
 
 class NullLogger < Logger
   def initialize(*args)
@@ -12,14 +12,14 @@ end
 
 class BenchmarkApp < Rails::Application
   routes.append do
-    get '/simple' => 'main#simple'
-    get '/text' => 'main#text'
+    get "/simple" => "main#simple"
+    get "/text" => "main#text"
 
-    get '/serialize_to_string' => 'main#serialize_to_string'
+    get "/serialize_to_string" => "main#serialize_to_string"
   end
 
-  config.secret_token = 's'*30
-  config.secret_key_base = 'foo'
+  config.secret_token = "s"*30
+  config.secret_key_base = "foo"
   config.consider_all_requests_local = false
 
   # simulate production
@@ -28,7 +28,7 @@ class BenchmarkApp < Rails::Application
   config.action_controller.perform_caching = true
 
   # otherwise deadlock occured
-  config.middleware.delete 'Rack::Lock'
+  config.middleware.delete "Rack::Lock"
 
   # to disable log files
   config.logger = NullLogger.new
@@ -49,7 +49,7 @@ end
 
 class MainController < ActionController::Base
   def text
-    render text: '{"ok":true}'.freeze, content_type: 'application/json'.freeze
+    render text: '{"ok":true}'.freeze, content_type: "application/json".freeze
   end
 
   def simple
@@ -58,7 +58,7 @@ class MainController < ActionController::Base
 
   def serialize_to_string
     data = Benchmark.data[:all]
-    render text: Panko::ArraySerializer.new(data, each_serializer: PostWithHasOneFastSerializer).to_json, content_type: 'application/json'.freeze
+    render text: Panko::ArraySerializer.new(data, each_serializer: PostWithHasOneFastSerializer).to_json, content_type: "application/json".freeze
   end
 end
 
@@ -74,7 +74,7 @@ def request(method, path)
 end
 
 
-Benchmark.ams('text') { request(:get, '/text') }
-Benchmark.ams('simple') { request(:get, '/simple') }
+Benchmark.ams("text") { request(:get, "/text") }
+Benchmark.ams("simple") { request(:get, "/simple") }
 
-Benchmark.ams('serialize_to_string') { request(:get, '/serialize_to_string') }
+Benchmark.ams("serialize_to_string") { request(:get, "/serialize_to_string") }

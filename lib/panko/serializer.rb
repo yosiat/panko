@@ -1,6 +1,6 @@
-require_relative 'cache'
-require_relative 'serialization_descriptor'
-require 'oj'
+require_relative "cache"
+require_relative "serialization_descriptor"
+require "oj"
 
 module Panko
   class Serializer

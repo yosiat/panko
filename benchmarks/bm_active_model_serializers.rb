@@ -1,6 +1,6 @@
-require_relative './benchmarking_support'
-require_relative './app'
-require_relative './setup'
+require_relative "./benchmarking_support"
+require_relative "./app"
+require_relative "./setup"
 
 class AmsAuthorFastSerializer < ActiveModel::Serializer
   attributes :id, :name
@@ -38,7 +38,7 @@ def benchmark_ams(prefix, serializer, options = {})
 end
 
 
-benchmark_ams 'HasOne', AmsPostWithHasOneFastSerializer
-benchmark_ams 'Simple', AmsPostFastSerializer
-benchmark_ams 'Except', AmsPostWithHasOneFastSerializer, except: [:title]
-benchmark_ams 'Include', AmsPostWithHasOneFastSerializer, include: [:id, :body, :author_id, :author]
+benchmark_ams "HasOne", AmsPostWithHasOneFastSerializer
+benchmark_ams "Simple", AmsPostFastSerializer
+benchmark_ams "Except", AmsPostWithHasOneFastSerializer, except: [:title]
+benchmark_ams "Include", AmsPostWithHasOneFastSerializer, include: [:id, :body, :author_id, :author]

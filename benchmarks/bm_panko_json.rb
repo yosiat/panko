@@ -1,6 +1,6 @@
-require_relative './benchmarking_support'
-require_relative './app'
-require_relative './setup'
+require_relative "./benchmarking_support"
+require_relative "./app"
+require_relative "./setup"
 
 class AuthorFastSerializer < Panko::Serializer
   attributes :id, :name
@@ -52,8 +52,8 @@ def benchmark(prefix, serializer, options = {})
   end
 end
 
-benchmark 'HasOne', PostWithHasOneFastSerializer
-benchmark 'Simple', PostFastSerializer
-benchmark 'SimpleWithMethodCall', PostFastWithMethodCallSerializer
-benchmark 'Except', PostWithHasOneFastSerializer, except: [:title]
-benchmark 'Include', PostWithHasOneFastSerializer, include: [:id, :body, :author_id, :author]
+benchmark "HasOne", PostWithHasOneFastSerializer
+benchmark "Simple", PostFastSerializer
+benchmark "SimpleWithMethodCall", PostFastWithMethodCallSerializer
+benchmark "Except", PostWithHasOneFastSerializer, except: [:title]
+benchmark "Include", PostWithHasOneFastSerializer, include: [:id, :body, :author_id, :author]

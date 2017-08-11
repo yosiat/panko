@@ -1,4 +1,4 @@
-require_relative 'cache'
+require_relative "cache"
 
 module Panko
   class ArraySerializer

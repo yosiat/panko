@@ -1,6 +1,6 @@
-require 'benchmark/ips'
-require 'json'
-require 'memory_profiler'
+require "benchmark/ips"
+require "json"
+require "memory_profiler"
 
 module Benchmark
   module ActiveModelSerializers
@@ -11,7 +11,7 @@ module Benchmark
     end
 
     def ams(label = nil, time: 10, disable_gc: true, warmup: 3, &block)
-      fail ArgumentError.new, 'block should be passed' unless block_given?
+      fail ArgumentError.new, "block should be passed" unless block_given?
 
       GC.start
 
