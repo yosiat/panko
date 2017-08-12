@@ -73,8 +73,7 @@ void serialize_has_one_associatoins(VALUE subject,
     VALUE value = rb_funcall(subject, rb_sym2id(name), 0);
 
     serialize_subject(rb_sym2str(name), value, str_writer,
-                      serialization_descriptor_read(association_descriptor),
-                      context);
+                      sd_read(association_descriptor), context);
   }
 }
 
@@ -92,8 +91,7 @@ void serialize_has_many_associatoins(VALUE subject,
     VALUE value = rb_funcall(subject, rb_sym2id(name), 0);
 
     serialize_subjects(rb_sym2str(name), value, str_writer,
-                       serialization_descriptor_read(association_descriptor),
-                       context);
+                       sd_read(association_descriptor), context);
   }
 }
 
@@ -148,8 +146,8 @@ VALUE serialize_subject_api(VALUE klass,
                             VALUE str_writer,
                             VALUE descriptor,
                             VALUE context) {
-  return serialize_subject(Qnil, subject, str_writer,
-                           serialization_descriptor_read(descriptor), context);
+  return serialize_subject(Qnil, subject, str_writer, sd_read(descriptor),
+                           context);
 }
 
 VALUE serialize_subjects_api(VALUE klass,
@@ -157,8 +155,7 @@ VALUE serialize_subjects_api(VALUE klass,
                              VALUE str_writer,
                              VALUE descriptor,
                              VALUE context) {
-  serialize_subjects(Qnil, subjects, str_writer,
-                     serialization_descriptor_read(descriptor), context);
+  serialize_subjects(Qnil, subjects, str_writer, sd_read(descriptor), context);
 
   return Qnil;
 }

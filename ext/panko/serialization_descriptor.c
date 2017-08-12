@@ -43,9 +43,27 @@ static VALUE serialization_descriptor_new(int argc, VALUE* argv, VALUE self) {
                           serialization_descriptor_free, sd);
 }
 
-SerializationDescriptor serialization_descriptor_read(VALUE descriptor) {
+SerializationDescriptor sd_read(VALUE descriptor) {
   return (SerializationDescriptor)DATA_PTR(descriptor);
 }
+
+VALUE sd_build_serializer(SerializationDescriptor sd) {
+  // We build the serializer and cache it on demand,
+  // because of our cache - we lock and create descriptor, while inside
+  // a descriptor we can't create another descriptor - deadlock.
+  if (sd->serializer == Qnil) {
+    VALUE args[0];
+    sd->serializer = rb_class_new_instance(0, args, sd->serializer_type);
+  }
+
+  return sd->serializer;
+}
+
+void sd_apply_serializer_config(VALUE serializer, VALUE object, VALUE context) {
+  rb_ivar_set(serializer, object_id, object);
+  rb_ivar_set(serializer, context_id, context);
+}
+
 
 VALUE serialization_descriptor_fields_set(VALUE self, VALUE fields) {
   SerializationDescriptor sd = (SerializationDescriptor)DATA_PTR(self);
@@ -101,23 +119,6 @@ VALUE serialization_descriptor_type_set(VALUE self, VALUE type) {
   SerializationDescriptor sd = (SerializationDescriptor)DATA_PTR(self);
   sd->serializer_type = type;
   return Qnil;
-}
-
-VALUE sd_build_serializer(SerializationDescriptor sd) {
-  // We build the serializer and cache it on demand,
-  // because of our cache - we lock and create descriptor, while inside
-  // a descriptor we can't create another descriptor - deadlock.
-  if (sd->serializer == Qnil) {
-    VALUE args[0];
-    sd->serializer = rb_class_new_instance(0, args, sd->serializer_type);
-  }
-
-  return sd->serializer;
-}
-
-void sd_apply_serializer_config(VALUE serializer, VALUE object, VALUE context) {
-  rb_ivar_set(serializer, object_id, object);
-  rb_ivar_set(serializer, context_id, context);
 }
 
 // Exposing this for testing

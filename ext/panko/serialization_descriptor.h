@@ -21,8 +21,7 @@ VALUE serialization_descriptor_method_fields_ref(VALUE descriptor);
 VALUE serialization_descriptor_has_one_associations_ref(VALUE descriptor);
 VALUE serialization_descriptor_has_many_associations_ref(VALUE descriptor);
 
-SerializationDescriptor serialization_descriptor_read(VALUE descriptor);
-
+SerializationDescriptor sd_read(VALUE descriptor);
 VALUE sd_build_serializer(SerializationDescriptor descriptor);
 void sd_apply_serializer_config(VALUE serializer, VALUE object, VALUE context);
 

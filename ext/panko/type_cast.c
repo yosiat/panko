@@ -238,7 +238,7 @@ VALUE cast_date_time_type(VALUE value) {
 VALUE type_cast(VALUE type_metadata, VALUE value) {
   cache_type_lookup();
 
-  VALUE type_klass = rb_obj_class(type_metadata);
+  VALUE type_klass = CLASS_OF(type_metadata);
   VALUE typeCastedValue = Qundef;
 
   TypeCast typeCast;
