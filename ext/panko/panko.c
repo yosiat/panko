@@ -20,6 +20,27 @@ void write_value(VALUE str_writer,
   rb_funcall(str_writer, push_value_id, 2, value, key);
 }
 
+void serialize_method_fields(VALUE subject,
+                             VALUE str_writer,
+                             SerializationDescriptor descriptor,
+                             VALUE context) {
+  VALUE method_fields = descriptor->method_fields;
+  if (RARRAY_LEN(method_fields) == 0) {
+    return;
+  }
+
+  VALUE serializer = sd_build_serializer(descriptor);
+  sd_apply_serializer_config(serializer, subject, context);
+
+  long i;
+  for (i = 0; i < RARRAY_LEN(method_fields); i++) {
+    VALUE attribute_name = RARRAY_AREF(method_fields, i);
+    VALUE result = rb_funcall(serializer, rb_sym2id(attribute_name), 0);
+
+    write_value(str_writer, rb_sym2str(attribute_name), result, Qnil);
+  }
+}
+
 void panko_attributes_iter(VALUE object,
                            VALUE name,
                            VALUE value,
@@ -35,19 +56,7 @@ void serialize_fields(VALUE subject,
   panko_each_attribute(subject, descriptor, descriptor->fields,
                        panko_attributes_iter, str_writer);
 
-  VALUE method_fields = descriptor->method_fields;
-  if (RARRAY_LEN(method_fields) > 0) {
-    VALUE real_serializer = sd_build_serializer(descriptor);
-    sd_apply_serializer_config(real_serializer, subject, context);
-
-    long i;
-    for (i = 0; i < RARRAY_LEN(method_fields); i++) {
-      VALUE attribute_name = RARRAY_AREF(method_fields, i);
-      VALUE result = rb_funcall(real_serializer, rb_sym2id(attribute_name), 0);
-
-      write_value(str_writer, rb_sym2str(attribute_name), result, Qnil);
-    }
-  }
+  serialize_method_fields(subject, str_writer, descriptor, context);
 }
 
 void serialize_has_one_associatoins(VALUE subject,
