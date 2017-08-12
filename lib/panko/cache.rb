@@ -12,7 +12,10 @@ module Panko
     def fetch(serializer_const, options)
       serializer_key = build_key(serializer_const, options[:only], options[:except])
       serializer = @_cache.compute_if_absent(serializer_key) {
-        SerializationDescriptor.build(serializer_const, only: options.fetch(:only, []), except: options.fetch(:except, []))
+        SerializationDescriptorBuilder.build(serializer_const,
+                                             only: options.fetch(:only, []),
+                                             except: options.fetch(:except, [])
+                                            )
       }
 
       serializer

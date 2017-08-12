@@ -1,6 +1,6 @@
 #include <ruby.h>
 
-#include "serialization_descriptor_backend.h"
+#include "serialization_descriptor.h"
 
 typedef void (*EachAttributeFunc)(VALUE object,
                                   VALUE name,

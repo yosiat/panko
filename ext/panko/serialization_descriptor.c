@@ -1,4 +1,4 @@
-#include "serialization_descriptor_backend.h"
+#include "serialization_descriptor.h"
 
 VALUE cSerializationDescriptor;
 
@@ -130,8 +130,8 @@ void panko_init_serialization_descriptor(VALUE mPanko) {
   CONST_ID(object_id, "@object");
   CONST_ID(context_id, "@context");
 
-  cSerializationDescriptor = rb_define_class_under(
-      mPanko, "SerializationDescriptorBackend", rb_cObject);
+  cSerializationDescriptor =
+      rb_define_class_under(mPanko, "SerializationDescriptor", rb_cObject);
 
   rb_define_module_function(cSerializationDescriptor, "new",
                             serialization_descriptor_new, -1);

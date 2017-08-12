@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 module Panko
-  module SerializationDescriptor
+  module SerializationDescriptorBuilder
     def self.build(serializer, options={})
-      backend = Panko::SerializationDescriptorBackend.new
+      backend = Panko::SerializationDescriptor.new
 
       serializer_only_filters, attributes_only_filters = resolve_filters(options, :only)
       serializer_except_filters, attributes_except_filters = resolve_filters(options, :except)
@@ -61,7 +61,10 @@ module Panko
         options[:only] = options.fetch(:only, []) + attributes_only_filters.fetch(association[:name], [])
         options[:except] = options.fetch(:except, []) + attributes_except_filters.fetch(association[:name], [])
 
-        [association[:name], SerializationDescriptor.build(serializer_const, options.except(:serializer))]
+        [
+          association[:name],
+          SerializationDescriptorBuilder.build(serializer_const, options.except(:serializer))
+        ]
       end
     end
 

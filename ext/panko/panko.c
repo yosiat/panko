@@ -1,8 +1,6 @@
 #include <ruby.h>
 
-#include "attributes_iterator.h"
 #include "panko.h"
-#include "type_cast.h"
 
 static ID push_value_id = 0;
 static ID push_array_id = 0;
