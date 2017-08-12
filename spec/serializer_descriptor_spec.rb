@@ -115,6 +115,24 @@ describe Panko::SerializationDescriptorBuilder do
       expect(descriptor.method_fields).to be_empty
     end
 
+    it "filters associations" do
+      class FooHasOneSerilizers < Panko::Serializer
+        attributes :name
+
+        has_one :foo1, serializer: FooSerializer
+        has_one :foo2, serializer: FooSerializer
+      end
+
+      descriptor = Panko::SerializationDescriptorBuilder.build(FooHasOneSerilizers, only: [:name, :foo1])
+
+      expect(descriptor.fields).to eq([:name])
+      expect(descriptor.has_one_associations.count).to eq(1)
+
+      foos_assoc = descriptor.has_one_associations.first
+      expect(foos_assoc.first).to eq(:foo1)
+      expect(foos_assoc.last.fields).to eq([:name, :address])
+    end
+
     describe "association filters" do
       it "accepts only as option" do
         class FoosHolderSerializer < Panko::Serializer
@@ -131,6 +149,7 @@ describe Panko::SerializationDescriptorBuilder do
         expect(foos_assoc.first).to eq(:foos)
         expect(foos_assoc.last.fields).to eq([:address])
       end
+
     end
   end
 end

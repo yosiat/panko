@@ -11,26 +11,34 @@ module Panko
 
       backend.type = serializer
 
-      backend.fields = apply_filters(
+      backend.fields = apply_fields_filters(
         fields,
         serializer_only_filters,
         serializer_except_filters
       )
 
-      backend.method_fields = apply_filters(
+      backend.method_fields = apply_fields_filters(
         method_fields,
         serializer_only_filters,
         serializer_except_filters
       )
 
       backend.has_many_associations = build_associations(
-        serializer._has_many_associations,
+        apply_association_filters(
+          serializer._has_many_associations,
+          serializer_only_filters,
+          serializer_except_filters
+        ),
         attributes_only_filters,
         attributes_except_filters
       )
 
       backend.has_one_associations = build_associations(
-        serializer._has_one_associations,
+        apply_association_filters(
+          serializer._has_one_associations,
+          serializer_only_filters,
+          serializer_except_filters
+        ),
         attributes_only_filters,
         attributes_except_filters
       )
@@ -85,14 +93,23 @@ module Panko
       return serializer_filters, association_filters
     end
 
-    def self.apply_filters(fields, only, except)
-      # not for now :)
-      return fields if only.is_a?(Hash) || except.is_a?(Hash)
-
+    def self.apply_fields_filters(fields, only, except)
       return fields & only if only.present?
       return fields - except if except.present?
 
       fields
+    end
+
+    def self.apply_association_filters(associations, only, except)
+      if only.present?
+        return associations.select { |assoc| only.include?(assoc[:name]) }
+      end
+
+      if except.present?
+        return associations.reject { |assoc| except.include?(assoc[:name]) }
+      end
+
+      associations
     end
 
     def self.resolve_serializer(serializer)
