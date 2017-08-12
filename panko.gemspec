@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "panko/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "panko"
+  spec.name          = "panko_serializer"
   spec.version       = Panko::VERSION
   spec.authors       = ["Yosi Attias"]
   spec.email         = ["yosy101@gmail.com"]

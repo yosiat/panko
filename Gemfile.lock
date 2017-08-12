@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    panko (0.2.7)
+    panko_serializer (0.2.7.1)
       concurrent-ruby
       oj (~> 3.2.0)
 
@@ -147,7 +147,7 @@ DEPENDENCIES
   byebug
   faker
   memory_profiler
-  panko!
+  panko_serializer!
   pg
   rails (~> 4.2.9)
   railties (~> 4.2.9)
