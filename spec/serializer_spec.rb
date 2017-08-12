@@ -141,6 +141,23 @@ describe Panko::Serializer do
                               "virtual" => "Hello #{foo.name}"
                           })
     end
+
+    it "handles nil" do
+      class FooHolderHasOneSerializer < Panko::Serializer
+        attributes :name
+
+        has_one :foo, serializer: FooSerializer
+      end
+
+      serializer = FooHolderHasOneSerializer.new
+
+      foo_holder = FooHolder.create(name: Faker::Lorem.word, foo: nil).reload
+
+      output = serializer.serialize foo_holder
+
+      expect(output).to eq("name" => foo_holder.name,
+                           "foo" => nil)
+    end
   end
 
   context "has_many" do

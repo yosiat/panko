@@ -72,8 +72,12 @@ void serialize_has_one_associatoins(VALUE subject,
     VALUE association_descriptor = RARRAY_AREF(association, 1);
     VALUE value = rb_funcall(subject, rb_sym2id(name), 0);
 
-    serialize_subject(rb_sym2str(name), value, str_writer,
-                      sd_read(association_descriptor), context);
+    if (value == Qnil) {
+      write_value(str_writer, rb_sym2str(name), value, Qnil);
+    } else {
+      serialize_subject(rb_sym2str(name), value, str_writer,
+                        sd_read(association_descriptor), context);
+    }
   }
 }
 
@@ -90,8 +94,12 @@ void serialize_has_many_associatoins(VALUE subject,
     VALUE association_descriptor = RARRAY_AREF(association, 1);
     VALUE value = rb_funcall(subject, rb_sym2id(name), 0);
 
-    serialize_subjects(rb_sym2str(name), value, str_writer,
-                       sd_read(association_descriptor), context);
+    if (value == Qnil) {
+      write_value(str_writer, rb_sym2str(name), value, Qnil);
+    } else {
+      serialize_subjects(rb_sym2str(name), value, str_writer,
+                         sd_read(association_descriptor), context);
+    }
   }
 }
 

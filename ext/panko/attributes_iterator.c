@@ -35,7 +35,9 @@ VALUE panko_each_attribute(VALUE obj,
                            EachAttributeFunc func,
                            VALUE context) {
   VALUE attributes_hash = panko_read_lazy_attributes_hash(obj);
-  // TODO: raise error here if attributes_hash is null
+  if(attributes_hash == Qnil) {
+    return Qnil;
+  }
 
   VALUE types, values;
   panko_read_types_and_value(attributes_hash, &types, &values);
