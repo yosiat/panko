@@ -25,8 +25,8 @@ group :benchmarks do
   end
 
   gem "memory_profiler"
-  gem "ruby-prof"
-  gem "ruby-prof-flamegraph"
+  #gem "ruby-prof"
+  #gem "ruby-prof-flamegraph"
 
   gem "benchmark-ips"
   gem "active_model_serializers"

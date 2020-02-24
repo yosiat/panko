@@ -4,7 +4,7 @@ require "rspec/core/rake_task"
 require "json"
 require "terminal-table"
 require "rake/extensiontask"
-require "pty"
+#require "pty"
 
 gem = Gem::Specification.load( File.dirname(__FILE__) + "/panko_serializer.gemspec" )
 
